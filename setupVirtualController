@@ -1,4 +1,4 @@
-//add joystick, buttons, etc
+// Add joystick, buttons, etc.
 import SwiftUI
 import GameController
 
@@ -8,7 +8,7 @@ struct MyApp: App {
         WindowGroup {
             ContentView()
                 .onAppear {
-                    // Configure et démarre le Virtual Controller automatiquement
+                    // Automatically configure and start the Virtual Controller
                     setupVirtualController()
                 }
         }
@@ -16,16 +16,16 @@ struct MyApp: App {
 }
 
 struct ContentView: View {
-    @State private var controllerStatus: String = "inactif"
+    @State private var controllerStatus: String = "inactive"
     
     var body: some View {
         ZStack {
-            // Container général pour gérer la disposition
+            // General container to manage layout
             VStack {
-                // HStack pour l'icône à gauche, le texte centré, et les boutons à droite
+                // HStack for the icon on the left, centered text, and buttons on the right
                 HStack {
-                    // Icône de statut en haut à gauche
-                    if controllerStatus == "actif" {
+                    // Status icon at the top left
+                    if controllerStatus == "active" {
                         Image(systemName: "gamecontroller.fill")
                             .resizable()
                             .frame(width: 55, height: 40)
@@ -43,15 +43,15 @@ struct ContentView: View {
                             .foregroundColor(.red)
                     }
                     
-                    // Texte centré
+                    // Centered text
                     Text("GCVirtual Controller Test")
                         .font(.title)
                         .frame(maxWidth: .infinity, alignment: .center)
                     
-                    // Boutons à droite de l'écran
+                    // Buttons on the right side of the screen
                     VStack {
                         HStack {
-                            // Bouton Déconnecter
+                            // Disconnect button
                             Button(action: disconnectVirtualController) {
                                 VStack {
                                     Image(systemName: "gamecontroller.circle.fill")
@@ -64,8 +64,7 @@ struct ContentView: View {
                                 }
                             }
                             
-                            
-                            // Bouton Reconnecter
+                            // Reconnect button
                             Button(action: reconnectVirtualController) {
                                 VStack {
                                     Image(systemName: "gamecontroller.circle")
@@ -80,15 +79,15 @@ struct ContentView: View {
                             .padding()
                         }
                     }
-                    .padding(.trailing) // Espacement du côté droit pour les boutons
+                    .padding(.trailing) // Right padding for the buttons
                 }
-                .padding(.top) // Espacement du haut de l'écran
+                .padding(.top) // Top padding for the screen
                 
-                Spacer() // Permet de pousser les éléments vers le bas de l'écran
+                Spacer() // Pushes elements toward the bottom of the screen
             }
         }
         .onAppear {
-            // Passe l'état au contrôleur
+            // Updates the controller status
             updateControllerStatus = { newStatus in
                 controllerStatus = newStatus
             }
@@ -96,14 +95,14 @@ struct ContentView: View {
     }
 }
 
-var virtualController: GCVirtualController? // Propriété persistante
-var updateControllerStatus: ((String) -> Void)? // Closure pour mettre à jour l'état depuis n'importe où
+var virtualController: GCVirtualController? // Persistent property for the virtual controller
+var updateControllerStatus: ((String) -> Void)? // Closure to update the status from anywhere
 
 func setupVirtualController() {
-    // Crée une configuration pour le contrôleur virtuel
+    // Creates configuration for the virtual controller
     let virtualConfig = GCVirtualController.Configuration()
     
-    // Ajoute uniquement les éléments nécessaires (supprime le joystick droit)
+    // Add only the necessary elements (removes the right joystick,etc..)
     virtualConfig.elements = [
         GCInputLeftThumbstick,
         GCInputButtonA,
@@ -112,63 +111,63 @@ func setupVirtualController() {
         GCInputButtonY,
     ]
     
-    // Initialise et connecte le contrôleur virtuel
+    // Initialize and connect the virtual controller
     virtualController = GCVirtualController(configuration: virtualConfig)
     virtualController?.connect { error in
         if let error = error {
-            print("Erreur lors de la connexion : \(error.localizedDescription)")
-            updateControllerStatus?("inactif")
+            print("Error while connecting: \(error.localizedDescription)")
+            updateControllerStatus?("inactive")
         } else {
-            print("Contrôleur virtuel connecté avec succès.")
-            updateControllerStatus?("actif")
+            print("Virtual controller connected successfully.")
+            updateControllerStatus?("active")
         }
     }
     
-    // Ajoute des gestionnaires d'événements pour les boutons et sticks
+    // Add event handlers for buttons and sticks
     if let gamepad = virtualController?.controller?.extendedGamepad {
-        // Gestionnaire pour le bouton A
+        // Handler for button A
         gamepad.buttonA.valueChangedHandler = { _, _, pressed in
             if pressed {
-                print("Bouton A pressé")
+                print("Button A pressed")
             }
         }
         
-        // Gestionnaire pour le bouton B
+        // Handler for button B
         gamepad.buttonB.valueChangedHandler = { _, _, pressed in
             if pressed {
-                print("Bouton B pressé")
+                print("Button B pressed")
             }
         }
         
-        // Gestionnaire pour le bouton X
+        // Handler for button X
         gamepad.buttonX.valueChangedHandler = { _, _, pressed in
             if pressed {
-                print("Bouton X pressé")
+                print("Button X pressed")
             }
         }
         
-        // Gestionnaire pour le bouton Y
+        // Handler for button Y
         gamepad.buttonY.valueChangedHandler = { _, _, pressed in
             if pressed {
-                print("Bouton Y pressé")
+                print("Button Y pressed")
             }
         }
         
-        // Gestionnaire pour le stick gauche
+        // Handler for the left thumbstick
         gamepad.leftThumbstick.valueChangedHandler = { _, xValue, yValue in
-            print("Stick gauche déplacé : x=\(xValue), y=\(yValue)")
+            print("Left thumbstick moved: x=\(xValue), y=\(yValue)")
         }
     }
 }
 
 func disconnectVirtualController() {
     virtualController?.disconnect()
-    updateControllerStatus?("inactif")
-    print("Contrôleur virtuel déconnecté.")
+    updateControllerStatus?("inactive")
+    print("Virtual controller disconnected.")
 }
 
 func reconnectVirtualController() {
-    disconnectVirtualController() // Déconnecte le contrôleur existant si nécessaire
-    setupVirtualController()      // Reconfigure et reconnecte un nouveau contrôleur
-    print("Tentative de reconnexion du contrôleur virtuel...")
+    disconnectVirtualController() // Disconnects the existing controller if necessary
+    setupVirtualController()      // Reconfigures and reconnects a new controller
+    print("Attempting to reconnect the virtual controller...")
 }
